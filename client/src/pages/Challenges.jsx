@@ -62,6 +62,11 @@ const Challenges = () => {
     fetchJoined();
   }, []);
 
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/login");
+  };
+
   const handleJoin = async (challengeId) => {
     await joinChallenge(challengeId, token);
     fetchAll();
@@ -74,60 +79,91 @@ const Challenges = () => {
   if (!user) return null;
 
   return (
-    <Box sx={{ minHeight: '100vh', backgroundColor: '#f9f9f9' }}>
-      <Navbar user={user} />
+    <Box sx={{ minHeight: "100vh", backgroundColor: "#f9f9f9" }}>
+      <Navbar user={user} onLogout={handleLogout} />
       <Container maxWidth="lg" sx={{ py: 4 }}>
-        <Typography variant="h4" gutterBottom sx={{ 
-          fontWeight: 700,
-          color: 'text.primary',
-          mb: 3
-        }}>
+        <Typography
+          variant="h4"
+          gutterBottom
+          sx={{
+            fontWeight: 700,
+            color: "text.primary",
+            mb: 3,
+          }}
+        >
           Wellness Challenges
         </Typography>
-        
-        <Paper elevation={0} sx={{ 
-          mb: 4,
-          borderRadius: 2,
-          border: '1px solid rgba(0,0,0,0.12)'
-        }}>
-          <Tabs 
-            value={tab} 
-            onChange={(_, v) => setTab(v)} 
+
+        <Paper
+          elevation={0}
+          sx={{
+            mb: 4,
+            borderRadius: 2,
+            border: "1px solid rgba(0,0,0,0.12)",
+          }}
+        >
+          <Tabs
+            value={tab}
+            onChange={(_, v) => setTab(v)}
             variant="fullWidth"
             sx={{
-              '& .MuiTabs-indicator': {
+              "& .MuiTabs-indicator": {
                 height: 3,
-                backgroundColor: 'primary.main'
-              }
+                backgroundColor: "black", // Black indicator
+              },
             }}
           >
-            <Tab label="All Challenges" sx={{ py: 2.5, fontWeight: 500 }} />
-            <Tab label="My Challenges" sx={{ py: 2.5, fontWeight: 500 }} />
+            <Tab
+              label="All Challenges"
+              sx={{
+                py: 2.5,
+                fontWeight: 500,
+                color: tab === 0 ? "black" : "text.secondary",
+                "&.Mui-selected": {
+                  color: "black", // Black when selected
+                },
+              }}
+            />
+            <Tab
+              label="My Challenges"
+              sx={{
+                py: 2.5,
+                fontWeight: 500,
+                color: tab === 1 ? "black" : "text.secondary",
+                "&.Mui-selected": {
+                  color: "black", // Black when selected
+                },
+              }}
+            />
           </Tabs>
         </Paper>
-        
+
         {loading ? (
           <Box display="flex" justifyContent="center" py={10}>
             <CircularProgress size={60} thickness={4} />
           </Box>
         ) : (
-          <Grid container spacing={4} sx={{ 
-            display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
-            gap: '32px',
-            '@media (max-width: 1200px)': {
-              gridTemplateColumns: 'repeat(3, 1fr)'
-            },
-            '@media (max-width: 900px)': {
-              gridTemplateColumns: 'repeat(2, 1fr)'
-            },
-            '@media (max-width: 600px)': {
-              gridTemplateColumns: '1fr'
-            }
-          }}>
+          <Grid
+            container
+            spacing={4}
+            sx={{
+              display: "grid",
+              gridTemplateColumns: "repeat(3, 1fr)",
+              gap: "32px",
+              "@media (max-width: 1200px)": {
+                gridTemplateColumns: "repeat(3, 1fr)",
+              },
+              "@media (max-width: 900px)": {
+                gridTemplateColumns: "repeat(2, 1fr)",
+              },
+              "@media (max-width: 600px)": {
+                gridTemplateColumns: "1fr",
+              },
+            }}
+          >
             {tab === 0 ? (
               allChallenges.length === 0 ? (
-                <Grid item xs={12} sx={{ gridColumn: '1 / -1' }}>
+                <Grid item xs={12} sx={{ gridColumn: "1 / -1" }}>
                   <Box textAlign="center" py={6}>
                     <Typography variant="h6" color="text.secondary">
                       No challenges available at the moment
@@ -138,7 +174,7 @@ const Challenges = () => {
                 allChallenges
                   .filter((challenge) => !isJoined(challenge._id))
                   .map((challenge) => (
-                    <Box key={challenge._id} sx={{ width: '100%' }}>
+                    <Box key={challenge._id} sx={{ width: "100%" }}>
                       <ChallengeCard
                         challenge={challenge}
                         isJoined={isJoined(challenge._id)}
@@ -149,7 +185,7 @@ const Challenges = () => {
               )
             ) : (
               joinedChallenges.length === 0 ? (
-                <Grid item xs={12} sx={{ gridColumn: '1 / -1' }}>
+                <Grid item xs={12} sx={{ gridColumn: "1 / -1" }}>
                   <Box textAlign="center" py={6}>
                     <Typography variant="h6" color="text.secondary">
                       You haven't joined any challenges yet
@@ -158,7 +194,7 @@ const Challenges = () => {
                 </Grid>
               ) : (
                 joinedChallenges.map((challenge) => (
-                  <Box key={challenge._id} sx={{ width: '100%' }}>
+                  <Box key={challenge._id} sx={{ width: "100%" }}>
                     <ChallengeCard
                       challenge={challenge}
                       isJoined={true}
