@@ -1,4 +1,3 @@
-// File: src/components/ExpandedChallengeCard.jsx
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button, Chip, Divider } from '@mui/material';
