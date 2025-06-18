@@ -1,54 +1,26 @@
 import React, { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
-import {
-  Box,
-  Typography,
-  Button,
-  CircularProgress,
-  Container,
-  Grid
-} from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { Button, Container, Typography, CircularProgress } from "@mui/material";
 import Navbar from "../components/Navbar";
 import { getAllChallenges, createChallenge } from "../services/api";
 import ChallengeModal from "../components/ChallengeModal";
 import ChallengeCard from "../components/ChallengeCard";
-import strengthImg from "../assets/strengthImg.png";
-import hydrationImg from "../assets/hydrationImg.png";
-import stepsImg from "../assets/stepsImg.png";
-import detoxImg from "../assets/digital_detox.png";
-import sleepImg from "../assets/sleep_reset.png";
-import healthyImg from "../assets/healthy_snack.png";
-import stretchingImg from "../assets/morning_stretch.png";
-import yogaImg from "../assets/yoga_beginners.png";
-
-const imageMap = {
-  "Strength and Gym Challenge": strengthImg,
-  "Hydration Challenge": hydrationImg,
-  "10K Steps Challenge": stepsImg,
-  "Digital Hour Detox": detoxImg,
-  "Sleep Reset Challenge": sleepImg,
-  "Healthy Snack Swap": healthyImg,
-  "Mindful Morning Stretch": stretchingImg,
-  "Yoga for Beginners": yogaImg,
-};
 
 const CoordinatorChallenges = () => {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
-  let user = null;
+  const [challenges, setChallenges] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [modalOpen, setModalOpen] = useState(false);
 
+  // This checks the user auth
+  let user = null;
   try {
     if (token) user = jwtDecode(token);
   } catch {
     user = null;
   }
-
-  const [challenges, setChallenges] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [editModalOpen, setEditModalOpen] = useState(false);
-  const [currentChallenge, setCurrentChallenge] = useState(null);
 
   useEffect(() => {
     if (!user) {
@@ -65,11 +37,7 @@ const CoordinatorChallenges = () => {
   const fetchChallenges = async () => {
     setLoading(true);
     const res = await getAllChallenges(token);
-    const challengesWithImages = res.data.map(challenge => ({
-      ...challenge,
-      imageUrl: imageMap[challenge.title] || challenge.imageUrl
-    }));
-    setChallenges(challengesWithImages);
+    setChallenges(res.data);
     setLoading(false);
   };
 
@@ -83,97 +51,76 @@ const CoordinatorChallenges = () => {
     }
   };
 
-  const handleEditChallenge = (challengeId) => {
-    const challengeToEdit = challenges.find(c => c._id === challengeId);
-    setCurrentChallenge(challengeToEdit);
-    setEditModalOpen(true);
-  };
-
-  const handleUpdateChallenge = async (updatedData) => {
-    try {
-      // Add your API call to update the challenge here
-      // await updateChallenge(currentChallenge._id, updatedData, token);
-      setEditModalOpen(false);
-      fetchChallenges();
-    } catch (error) {
-      console.error("Error updating challenge:", error);
-    }
-  };
-
   if (!user || user.role !== "coordinator") return null;
 
   return (
-    <Box sx={{ minHeight: '100vh', backgroundColor: '#f9f9f9' }}>
-      <Navbar user={user} />
-      <Container maxWidth="lg" sx={{ py: 4 }}>
-        <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
-          <Typography variant="h4" sx={{ fontWeight: 700 }}>
+    <div style={{ minHeight: "100vh", backgroundColor: "#f9f9f9" }}>
+      <Navbar user={user} onLogout={() => {
+        localStorage.removeItem("token");
+        navigate("/login");
+      }} />
+
+      <Container maxWidth="lg" style={{ padding: "32px 0" }}>
+        <div style={{ 
+          display: "flex", 
+          justifyContent: "space-between", 
+          alignItems: "center",
+          marginBottom: "32px"
+        }}>
+          <Typography variant="h4" style={{ fontWeight: "bold" }}>
             Coordinator Dashboard
           </Typography>
-          <Button 
-            variant="contained" 
+          <Button
+            variant="contained"
             onClick={() => setModalOpen(true)}
-            sx={{
-              backgroundColor: '#000',
-              '&:hover': {
-                backgroundColor: '#333'
-              }
-            }}
+            style={{ backgroundColor: "#000" }}
           >
             Create New Challenge
           </Button>
-        </Box>
+        </div>
 
         {loading ? (
-          <Box display="flex" justifyContent="center" py={10}>
-            <CircularProgress size={60} thickness={4} />
-          </Box>
-        ) : (
-          <Grid container spacing={4} sx={{ 
-            display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
-            gap: '32px',
-            '@media (max-width: 1200px)': {
-              gridTemplateColumns: 'repeat(3, 1fr)'
-            },
-            '@media (max-width: 900px)': {
-              gridTemplateColumns: 'repeat(2, 1fr)'
-            },
-            '@media (max-width: 600px)': {
-              gridTemplateColumns: '1fr'
-            }
+          <div style={{ 
+            display: "flex", 
+            justifyContent: "center", 
+            padding: "80px 0" 
           }}>
-            {challenges.length === 0 ? (
-              <Grid item xs={12} sx={{ gridColumn: '1 / -1' }}>
-                <Box textAlign="center" py={6}>
-                  <Typography variant="h6" color="text.secondary">
-                    No challenges created yet
-                  </Typography>
-                </Box>
-              </Grid>
-            ) : (
-              challenges.map((challenge) => (
-                <Box key={challenge._id} sx={{ width: '100%' }}>
-                  <ChallengeCard
-                    challenge={challenge}
-                    isCoordinator={true}
-                    onJoin={() => handleEditChallenge(challenge._id)}
-                    isJoined={false}
-                  />
-                </Box>
-              ))
-            )}
-          </Grid>
+            <CircularProgress size={60} />
+          </div>
+        ) : challenges.length === 0 ? (
+          <div style={{ 
+            textAlign: "center", 
+            padding: "48px 0" 
+          }}>
+            <Typography style={{ color: "#666" }}>
+              No challenges created yet
+            </Typography>
+          </div>
+        ) : (
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
+            gap: "24px"
+          }}>
+            {challenges.map((challenge) => (
+              <ChallengeCard
+                key={challenge._id}
+                challenge={challenge}
+                isCoordinator={true}
+                onJoin={() => {}}
+                isJoined={false}
+              />
+            ))}
+          </div>
         )}
 
-        {/* Create Challenge Modal */}
         <ChallengeModal
           open={modalOpen}
           onClose={() => setModalOpen(false)}
           onCreate={handleCreateChallenge}
         />
       </Container>
-    </Box>
+    </div>
   );
 };
 
