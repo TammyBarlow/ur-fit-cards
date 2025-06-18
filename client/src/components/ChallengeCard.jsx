@@ -1,185 +1,91 @@
 import React from 'react';
-import {
-  Card,
-  CardContent,
-  CardMedia,
-  Typography,
-  Button,
-  CardActions,
-  Box
-} from '@mui/material';
-import strengthImg from "../assets/strengthImg.png";
-import hydrationImg from "../assets/hydrationImg.png";
-import stepsImg from "../assets/stepsImg.png";
-import detoxImg from "../assets/digital_detox.png";
-import sleepImg from "../assets/sleep_reset.png";
-import healthyImg from "../assets/healthy_snack.png";
-import stretchingImg from "../assets/morning_stretch.png";
-import yogaImg from "../assets/yoga_beginners.png";
+import { Link } from 'react-router-dom';
+import { Button, Card, CardContent, Typography } from '@mui/material';
 
-const imageMap = {
-  "Strength and Gym Challenge": strengthImg,
-  "Hydration Challenge": hydrationImg,
-  "10K Steps Challenge": stepsImg,
-  "Digital Hour Detox": detoxImg,
-  "Sleep Reset Challenge": sleepImg,
-  "Healthy Snack Swap": healthyImg,
-  "Mindful Morning Stretch": stretchingImg,
-  "Yoga for Beginners": yogaImg,
-};
-
-const ChallengeCard = ({ 
-  challenge, 
-  isJoined, 
-  onJoin, 
-  isCoordinator = false  // Add this new prop
-}) => {
-  const cardImage = imageMap[challenge.title] || 
-                    (challenge.imageUrl ? challenge.imageUrl : placeholderImg);
-
+const ChallengeCard = ({ challenge, isJoined, onJoin, isCoordinator = false }) => {
   return (
-    <Card sx={{ 
-      height: '100%',
-      display: 'flex',
-      flexDirection: 'column',
+    <Card style={{
       border: '1px solid #e0e0e0',
       borderRadius: '8px',
-      overflow: 'hidden',
-      transition: 'all 0.3s ease',
-      '&:hover': {
-        transform: 'translateY(-4px)',
-        boxShadow: '0 6px 12px rgba(0,0,0,0.15)',
-        borderColor: '#333'
-      }
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'column'
     }}>
-      <Box sx={{
-        height: 180,
+      {/* Image Section */}
+      <div style={{
+        height: '160px',
+        backgroundColor: '#f5f5f5',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        overflow: 'hidden',
-        backgroundColor: '#f5f5f5'
+        overflow: 'hidden'
       }}>
-        <img
-          src={cardImage}
-          alt={challenge.title}
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'contain',
-            padding: '16px'
-          }}
-        />
-      </Box>
-      <CardContent sx={{ 
-        flex: '1 0 auto',
-        display: 'flex',
-        flexDirection: 'column',
-        p: 2.5,
-        pb: 0
-      }}>
-        <Typography 
-          gutterBottom 
-          variant="h6" 
-          component="h3"
-          sx={{
-            fontWeight: 600,
-            lineHeight: 1.3,
-            mb: 1.5,
-            minHeight: '3em',
-            display: '-webkit-box',
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: 'vertical',
-            overflow: 'hidden'
-          }}
-        >
-          {challenge.title}
+        {challenge.imageUrl && (
+          <img
+            src={challenge.imageUrl}
+            alt={challenge.title}
+            style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
+          />
+        )}
+      </div>
+
+      {/* Content Section */}
+      <CardContent style={{ flex: 1 }}>
+        <Typography variant="h6" component="h3" style={{ marginBottom: '12px', fontWeight: '600' }}>
+          <Link to={`/challenges/${challenge._id}`} style={{ 
+            color: '#000',
+            textDecoration: 'none',
+            '&:hover': { textDecoration: 'underline' }
+          }}>
+            {challenge.title}
+          </Link>
         </Typography>
-        <Typography 
-          variant="body2" 
-          color="text.secondary"
-          sx={{ 
-            mb: 2,
-            display: '-webkit-box',
-            WebkitLineClamp: 3,
-            WebkitBoxOrient: 'vertical',
-            overflow: 'hidden',
-            flex: '1 0 auto'
-          }}
-        >
+
+        <Typography variant="body2" color="textSecondary" style={{ marginBottom: '16px' }}>
           {challenge.description}
         </Typography>
-        <Box sx={{ 
+
+        <div style={{
           display: 'flex',
           justifyContent: 'space-between',
-          mt: 'auto',
-          pt: 1.5,
-          borderTop: '1px solid rgba(0,0,0,0.05)'
+          marginTop: 'auto',
+          paddingTop: '12px',
+          borderTop: '1px solid #f0f0f0'
         }}>
-          <Typography variant="caption" sx={{ fontWeight: 500 }}>
-            {challenge.totalDays} days
-          </Typography>
-          <Typography variant="caption" sx={{ fontWeight: 500 }}>
-            {challenge.participantCount} participants
-          </Typography>
-        </Box>
+          <Typography variant="caption">{challenge.totalDays} days</Typography>
+          <Typography variant="caption">{challenge.participantCount} participants</Typography>
+        </div>
       </CardContent>
-      <CardActions sx={{ 
-        p: 2,
-        pt: 1,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center'
-      }}>
+
+      {/* Button Section */}
+      <div style={{ padding: '0 16px 16px 16px' }}>
         {isCoordinator ? (
-          // Coordinator Edit Button
           <Button
             fullWidth
             variant="contained"
-            size="medium"
-            onClick={() => onJoin(challenge._id)}
-            sx={{
-              height: 42,
-              fontWeight: 500,
-              borderRadius: '4px',
-              backgroundColor: '#000',
-              color: '#fff',
-              '&:hover': {
-                backgroundColor: '#333'
-              }
-            }}
+            component={Link}
+            to={`/challenges/${challenge._id}`}
+            style={{ height: '42px', backgroundColor: '#000' }}
           >
             Edit Challenge
           </Button>
         ) : (
-          // Participant Join Button
           <Button
             fullWidth
             variant={isJoined ? "outlined" : "contained"}
-            size="medium"
             onClick={() => !isJoined && onJoin(challenge._id)}
             disabled={isJoined}
-            sx={{
-              height: 42,
-              fontWeight: 500,
-              borderRadius: '4px',
+            style={{ 
+              height: '42px',
               backgroundColor: isJoined ? 'transparent' : '#000',
               color: isJoined ? '#000' : '#fff',
-              borderColor: '#000',
-              '&:hover': {
-                backgroundColor: isJoined ? 'transparent' : '#333',
-                borderColor: '#333'
-              },
-              '&.Mui-disabled': {
-                borderColor: 'rgba(0,0,0,0.12)',
-                color: 'rgba(0,0,0,0.26)'
-              }
+              borderColor: '#000'
             }}
           >
             {isJoined ? 'Already Joined' : 'Join Challenge'}
           </Button>
         )}
-      </CardActions>
+      </div>
     </Card>
   );
 };
